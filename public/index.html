@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <META http-equiv="Access-Control-Allow-Origin" content="*">
+    <script src="socket.io.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Chat meu</title>
+
+    <script>
+    
+        var SOCK_CHAT = io("http://localhost:3001");
+        const LOGGED_USER = window.location.search.replace("?","");
+        
+        var otherUser = null;
+        SOCK_CHAT.emit("userConnected", LOGGED_USER);
+
+        SOCK_CHAT.on('message', (message) => {
+
+            if(message.receiver == LOGGED_USER){
+
+                if(message.length != "" && message.sender == otherUser){
+                    addMessage(message.message,true);
+                }
+
+            }
+
+        });
+
+
+        function adjustChatScroll(){
+            var msgDiv = document.getElementById("messagesLocal");
+            msgDiv.scrollTop = msgDiv.scrollHeight;
+        }
+
+        fetch("http://localhost:3001/teste").
+            then(r => {
+                return r.json();
+            }).
+            then(r => {
+                
+                r.forEach(u => {
+                   addUserOnline(u); 
+                });
+                
+            });
+
+        
+        function historico(dados){
+
+            dados.forEach(d => {
+                let isOtherUserMsg = d.receiver == LOGGED_USER ? true : false;
+                addMessage(d.message, isOtherUserMsg);
+            })
+
+        }
+
+        function findConversation(other,me){
+            
+            l("#messagesLocal").innerHTML = "";
+
+            fetch(`http://localhost:3001/conversation?other=${other}&me=${me}`).
+            then(r => {
+                return r.json();
+            }).
+            then(r => {
+                historico(r);              
+            });
+        }
+
+        function addUserOnline(user){
+
+            if(LOGGED_USER != user.id){
+
+                let curUser = user;
+                var usersContainer = document.querySelector("#listUsers");
+                let userLine = newElement("div");
+                userLine.innerHTML = `${curUser.nome}`;
+                userLine.onclick = function(){
+                    l("#nomePessoaChat").innerHTML = " - "+curUser.nome;
+                    l("#chat").style.height = "400px";
+                    otherUser = curUser.id;
+                    findConversation(otherUser,LOGGED_USER);
+                }
+                usersContainer.appendChild(userLine);
+
+            }
+ 
+        }
+
+    </script>
+
+</head>
+<body>
+
+    <div id="listUsers">
+       
+        <div class="chatTitle" onclick="/*minimizeChat()*/">
+            <span>
+                Chat - Utilizadores 
+            </span>
+        </div>
+        
+    </div>
+    
+    <div>
+    </div>
+
+</body>
+
+<script>
+
+function l(id){
+    return document.querySelector(id);
+}
+
+function newElement(el){
+    return document.createElement(el);
+}
+
+function createChatContainer(){
+
+    let chatDiv = newElement("div");
+    chatDiv.id = "chat";
+    chatDiv.style.width = "300px";
+    chatDiv.style.height = "37px";
+    chatDiv.style.background = "white";
+    chatDiv.style.position = "fixed";
+    chatDiv.style.bottom = "0";
+    chatDiv.style.right = "50px";
+    chatDiv.style.zIndex = "10";
+    chatDiv.style.boxShadow = "0px 1px 7px #0e8ce4";
+    chatDiv.style.borderTopLeftRadius = "6px";
+    chatDiv.style.borderTopRightRadius = "6px";
+    chatDiv.style.overflow = "hidden";
+    //37px
+    chatDiv.innerHTML = chatView();
+
+    document.body.appendChild(chatDiv);
+    
+}
+
+function minimizeChat(){
+    if(l("#chat").style.height == "37px" && otherUser != null)
+        l("#chat").style.height = "400px";
+    else
+        l("#chat").style.height = "37px";
+}
+
+function chatSendMessage(){
+    let pressedKey = event.keyCode || event.charCode;
+
+    if(pressedKey == 13 && event.ctrlKey){
+        console.log("Helo");
+        l('#textLocal').value = l('#textLocal').value+"\r\n";
+        //l('#textLocal').value = l('#textLocal').value+"<br>Ola"
+    }
+
+    else if(pressedKey == 13){
+
+        event.preventDefault();
+        let message = l('#textLocal').value;
+
+        if(message.length != ""){
+
+            let sendingObject = {
+                receiver : otherUser,
+                sender: LOGGED_USER,
+                message: message
+            }
+            sendBackMessage(sendingObject);
+            addMessage(message);            
+            l('#textLocal').value = "";
+
+        }
+            
+        document.getElementById('textLocal').innerHTML = document.getElementById('textLocal').innerHTML.substr(0,0);
+
+    }
+}
+
+
+function chatView(){
+
+    return `
+
+        <div class="chatTitle" onclick="minimizeChat()">
+            <span>
+                Chat<span id="nomePessoaChat"></span>
+            </span>
+            <span class="minimize">--</span>
+        </div>
+        <div id="messagesLocal"></div>
+        <textarea id="textLocal" placeholder="Digite a sua mensagem" onkeypress="chatSendMessage()" contentEditable="true"></textarea>
+        <button type="button">Enviar</button>
+        <input type="file" style="display:none;" id="chatImageFile">
+        <button type="button">...Enviar Imagem</button>
+    `
+
+}
+
+function selectImageToSend(){
+
+    let imageInput = document.querySelector("#chatImageFile");
+    imageInput.onchange = function(){
+        
+    }
+
+}
+
+function sendBackMessage(value){
+    SOCK_CHAT.emit('message', value);
+}
+
+function addMessage(message,hother){
+
+    let messageContainer = newElement("div");
+
+    if(hother == true){
+        messageContainer.setAttribute("class","otherMessage");
+    }else
+        messageContainer.className = "myMessage";
+
+    messageContainer.innerHTML = message;
+    l("#messagesLocal").appendChild(messageContainer);
+
+    adjustChatScroll();
+}
+
+createChatContainer();
+
+</script>
+
+</html>

@@ -1,0 +1,111 @@
+#chat .chatTitle, #listUsers .chatTitle{
+
+    background:#0e8ce4;
+    padding: 8px;
+    color:white;
+    font-weight: bold;
+    cursor: pointer;
+
+    }
+
+
+    #chat #messagesLocal{
+
+        height: 50%;
+        border: 1px solid gray;
+        width: 98%;
+        margin: 0 auto;
+        margin-top: 0px;
+        margin-top: 4px;
+        padding-left: 10px;
+        overflow-x: hidden;
+        border: none;
+        overflow-y: scroll;
+
+    }
+
+
+    #chat #textLocal
+    {
+    height: 28%;
+    border: 1px solid gray;
+    margin-top: 2px;
+    padding:5px;
+    width: 100%;
+    }
+
+
+    #chat button
+    {
+
+    background:#0e8ce4;
+    color:white;
+    padding: 5px;
+    border: none;
+    margin-top: 1px;
+    margin-left: 2px;
+    padding-left: 20px;
+    padding-right: 20px;
+
+    }
+
+
+
+    #chat .minimize{
+
+    float: right;
+    letter-spacing: -2px;
+    margin-right: 4px;
+    cursor: pointer;
+
+    }
+
+
+    #chat .myMessage{
+
+        width: 70%;
+        left: 28%;
+        margin-top: 4%;
+        border-radius: 6px;
+        padding: 5px;
+        background:#b2c9e1;
+
+    }
+
+    #chat .otherMessage{
+
+        margin-top: 4%;
+        border-radius: 6px;
+        background:greenyellow;
+        margin-left: 26%;
+        width: 70%;
+        padding: 5px;
+    }
+
+
+    body{
+        font-family: 'Rubik', sans-serif;
+    }
+
+
+    #listUsers{
+        
+        box-shadow: rgb(14, 140, 228) 0px 1px 7px;
+        width: 63%;
+        height: 67%;
+        margin-top: 78px;
+        position: fixed;
+        background:white;
+        bottom: 0;
+        right: 10px;
+    }
+
+    #listUsers > div{
+        height: 22px;
+        border-bottom: 1px solid lightgray;
+        padding-top: 5px;
+        padding-left: 11px;
+        background:aliceblue;
+        font-size: 13px;
+        cursor: pointer;
+    }
