@@ -20,11 +20,13 @@
 
         SOCK_CHAT.on('message', (message) => {
 
+        
             if(message.receiver == LOGGED_USER){
 
                 if(message.length != "" && message.sender == otherUser){
                     addMessage(message.message,true);
-                }
+                }else
+                    document.getElementById("thisUserIs"+message.sender).style.backgroundColor = "orange";
 
             }
 
@@ -78,11 +80,13 @@
                 let curUser = user;
                 var usersContainer = document.querySelector("#listUsers");
                 let userLine = newElement("div");
+                userLine.id = "thisUserIs"+curUser.id;
                 userLine.innerHTML = `${curUser.nome}`;
                 userLine.onclick = function(){
                     l("#nomePessoaChat").innerHTML = " - "+curUser.nome;
                     l("#chat").style.height = "400px";
                     otherUser = curUser.id;
+                    document.getElementById("thisUserIs"+otherUser).style.backgroundColor = "aliceblue";
                     findConversation(otherUser,LOGGED_USER);
                 }
                 usersContainer.appendChild(userLine);
